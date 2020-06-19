@@ -132,3 +132,6 @@ dmypy.json
 *.swp
 *.swo
 *~
+
+# don't push data folder
+data/*
