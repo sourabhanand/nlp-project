@@ -69,7 +69,7 @@ def preprocess_data(paper_text):
 def main():
   metadata_df = pd.read_csv(os.path.join(DATA_LOC,'metadata.csv'), low_memory=False)
 
-  read_all_data = False
+  read_all_data = True
   if read_all_data:
     # filter rows which contains parsed json files (either pdf_json or pmc_json)
     pdf_mdata_df = metadata_df[metadata_df['pdf_json_files'].notnull()
@@ -86,29 +86,32 @@ def main():
     for row in parsed_mdata_df.itertuples():
       json_files_str = row.pmc_json_files if pd.isnull(row.pdf_json_files) else row.pdf_json_files
       json_files = json_files_str.split(';')
-      for json_file in json_files:
-        print('Row:', row_idx)
-        json_file = os.path.join(DATA_LOC, json_file.strip())
-        row_data = parse_json(row.cord_uid, json_file)
-        if len(row_data) == 3:
-          data_df.loc[row_idx] = row_data
-          row_idx += 1
+      # take the first file in case if it contains multi files
+      json_file = json_files[0]
+      json_file = os.path.join(DATA_LOC, json_file.strip())
+      print('Row:', row_idx)
+      row_data = parse_json(row.cord_uid, json_file)
+      if len(row_data) == 3:
+        data_df.loc[row_idx] = row_data
+        row_idx += 1
+     # for json_file in json_files:
+     #   print('Row:', row_idx)
+     #   json_file = os.path.join(DATA_LOC, json_file.strip())
+     #   row_data = parse_json(row.cord_uid, json_file)
+     #   if len(row_data) == 3:
+     #     data_df.loc[row_idx] = row_data
+     #     row_idx += 1
 
-    print('Writing to CSV')
-    data_df.to_csv('final_data.csv')
+    print('Writing orig data to CSV')
+    data_df.to_csv(os.path.join(DATA_LOC,'orig_data.csv'), index=False)
+    # preprocess the text
+    print('Starting preprocessing...')
+    data_df['processed_paper_text'] = data_df['paper_text'].swifter.apply(preprocess_data)
+    print('Done preprocessing. Writing to file')
+    data_df[['cord_uid','processed_paper_text']].to_csv(os.path.join(DATA_LOC,'processed_data.csv'), index=False)
   else:
-    print('Loading processed data')
-    data_df = pd.read_csv('final_data.csv')
-    data_df.drop(['Unnamed: 0'], axis=1, inplace=True)
-
-  # preprocess the text
-  # This function can be 'applied' to data frame column containing paper_text or abstract_text
-  print('Starting preprocessing...')
-  #try_df = data_df.head()
-  processed_docs = data_df['paper_text'].swifter.apply(preprocess_data)
-  print('Done preprocessing. Writing to file')
-  #print(processed_docs)
-  processed_docs.to_csv('processed_data.csv', index=False, header=False)
+    print('Loading processed data...')
+    data_df = pd.read_csv(os.path.join(DATA_LOC,'processed_data.csv'))
 
 
 if __name__ == '__main__' : main()
