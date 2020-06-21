@@ -66,8 +66,8 @@ def preprocess_data(paper_text):
   pos_tokens = pos_tag(tokens)
   return (' '.join(lemmatize(pos_tokens)))
 
-def get_processed_data(use_cached=True):
-  metadata_df = pd.read_csv(os.path.join(DATA_LOC,'metadata.csv'), low_memory=False)
+def get_processed_data(data_loc, use_cached=True):
+  metadata_df = pd.read_csv(os.path.join(data_loc,'metadata.csv'), low_memory=False)
 
   if not use_cached:
     # filter rows which contains parsed json files (either pdf_json or pmc_json)
@@ -87,7 +87,7 @@ def get_processed_data(use_cached=True):
       json_files = json_files_str.split(';')
       # take the first file in case if it contains multi files
       json_file = json_files[0]
-      json_file = os.path.join(DATA_LOC, json_file.strip())
+      json_file = os.path.join(data_loc, json_file.strip())
       print('Row:', row_idx)
       row_data = parse_json(row.cord_uid, json_file)
       if len(row_data) == 3:
@@ -95,21 +95,22 @@ def get_processed_data(use_cached=True):
         row_idx += 1
      # for json_file in json_files:
      #   print('Row:', row_idx)
-     #   json_file = os.path.join(DATA_LOC, json_file.strip())
+     #   json_file = os.path.join(data_loc, json_file.strip())
      #   row_data = parse_json(row.cord_uid, json_file)
      #   if len(row_data) == 3:
      #     data_df.loc[row_idx] = row_data
      #     row_idx += 1
 
     print('Writing orig data to CSV')
-    data_df.to_csv(os.path.join(DATA_LOC,'orig_data.csv'), index=False)
+    data_df.to_csv(os.path.join(data_loc,'orig_data.csv'), index=False)
     # preprocess the text
     print('Starting preprocessing...')
     data_df['processed_paper_text'] = data_df['paper_text'].swifter.apply(preprocess_data)
     print('Done preprocessing. Writing to file')
-    data_df[['cord_uid','processed_paper_text']].to_csv(os.path.join(DATA_LOC,'processed_data.csv'), index=False)
+    data_df[['cord_uid','processed_paper_text']].to_csv(os.path.join(data_loc,'processed_data.csv'), index=False)
   else:
     print('Loading processed data...')
-    data_df = pd.read_csv(os.path.join(DATA_LOC,'processed_data.csv'))
+    data_df = pd.read_csv(os.path.join(data_loc,'processed_data.csv'))
 
   return data_df
+
