@@ -63,7 +63,7 @@ def preprocess_data(paper_text):
   tokens = simple_preprocess(paper_text, deacc=True)
   tokens = [t for t in tokens if t not in STOP_WORDS]
   pos_tokens = pos_tag(tokens)
-  print(len(list(lemmatize(pos_tokens))))
+  return (' '.join(lemmatize(pos_tokens)))
 
 def main():
   metadata_df = pd.read_csv(os.path.join(DATA_LOC,'metadata.csv'), low_memory=False)
@@ -81,7 +81,6 @@ def main():
 
     # iterate rows of dataframe and read the json files
     data_df = pd.DataFrame(index=range(num_rows), columns=['cord_uid', 'abstract', 'paper_text'])
-    print(data_df.head())
     row_idx = 0
     for row in parsed_mdata_df.itertuples():
       json_files_str = row.pmc_json_files if pd.isnull(row.pdf_json_files) else row.pdf_json_files
@@ -103,7 +102,11 @@ def main():
 
   # preprocess the text
   # This function can be 'applied' to data frame column containing paper_text or abstract_text
-  preprocess_data(data_df.iloc[0]['paper_text'])
+  print('Starting preprocessing...')
+  #try_df = data_df.head()
+  processed_docs = data_df['paper_text'].map(preprocess_data)
+  #print(processed_docs)
+  processed_docs.to_csv('processed_data.csv', index=False, header=False)
 
 
 if __name__ == '__main__' : main()
