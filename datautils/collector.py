@@ -9,6 +9,7 @@
 import os
 import json
 import gensim
+import swifter
 import pandas as pd
 from nltk.tag import pos_tag
 from nltk.corpus import stopwords
@@ -104,7 +105,8 @@ def main():
   # This function can be 'applied' to data frame column containing paper_text or abstract_text
   print('Starting preprocessing...')
   #try_df = data_df.head()
-  processed_docs = data_df['paper_text'].map(preprocess_data)
+  processed_docs = data_df['paper_text'].swifter.apply(preprocess_data)
+  print('Done preprocessing. Writing to file')
   #print(processed_docs)
   processed_docs.to_csv('processed_data.csv', index=False, header=False)
 
