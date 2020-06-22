@@ -104,14 +104,14 @@ def get_processed_data(data_loc, use_cached=True):
         #   if len(row_data) == 3:
         #     data_df.loc[row_idx] = row_data
         #     row_idx += 1
-
+        data_df.dropna(axis=0, inplace=True)
         print('Writing orig data to CSV')
         data_df.to_csv(os.path.join(data_loc,'orig_data.csv'), index=False)
         # preprocess the text
         print('Starting preprocessing...')
         data_df['processed_paper_text'] = (data_df['paper_text']
                                            .swifter.apply(preprocess_data))
-        data_df.dropna(axis=0, inplace=True)
+        
         print('Done preprocessing. Writing to file')
         data_df[['cord_uid','processed_paper_text']].to_csv(os.path.join(data_loc,
                                                                          'processed_data.csv'),
