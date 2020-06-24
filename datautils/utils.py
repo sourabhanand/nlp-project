@@ -111,14 +111,14 @@ def get_processed_data(data_loc, use_cached=True):
         print('Starting preprocessing...')
         data_df['processed_paper_text'] = (data_df['paper_text']
                                            .swifter.apply(preprocess_data))
-        
+
         print('Done preprocessing. Writing to file')
         data_df[['cord_uid','processed_paper_text']].to_csv(os.path.join(data_loc,
                                                                          'processed_data.csv'),
                                                             index=False)
     else:
         print('Loading processed data...')
-        data_df = pd.read_csv(os.path.join(data_loc,'processed_data.csv'))
+        data_df = pd.read_csv(os.path.join(data_loc, 'processed_data.csv'))
 
     return data_df
 

@@ -6,8 +6,8 @@ DATA_LOC = os.path.join('data', '2020-06-20')
 
 
 def main():
-    data_df = get_processed_data(DATA_LOC, use_cached=False)
-    # do_lda(data_df)
+    data_df = get_processed_data(DATA_LOC, use_cached=True)
+    do_lda(data_df)
 
 
 if __name__ == '__main__':
