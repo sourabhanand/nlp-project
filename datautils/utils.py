@@ -11,6 +11,7 @@ import json
 import gensim
 import swifter
 import pandas as pd
+import dask.dataframe as dd
 from nltk.tag import pos_tag
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -118,7 +119,14 @@ def get_processed_data(data_loc, use_cached=True):
                                                             index=False)
     else:
         print('Loading processed data...')
-        data_df = pd.read_csv(os.path.join(data_loc, 'processed_data.csv'))
+        data_df = dd.read_csv(os.path.join(data_loc, 'processed_data.csv'))
 
     return data_df
+
+
+def lazy_load_processed_data(data_loc):
+    dask_data_df = dd.read_csv(os.path.join(data_loc, 'processed_data.csv'))
+    for index, row in dask_data_df.iterrows():
+        if pd.isna(row['processed_paper_text']): continue
+        yield row['processed_paper_text'].split()
 
