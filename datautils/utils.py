@@ -128,5 +128,6 @@ def lazy_load_processed_data(data_loc):
     dask_data_df = dd.read_csv(os.path.join(data_loc, 'processed_data.csv'))
     for index, row in dask_data_df.iterrows():
         if pd.isna(row['processed_paper_text']): continue
+        #if index > 0: break
         yield row['processed_paper_text'].split()
 
